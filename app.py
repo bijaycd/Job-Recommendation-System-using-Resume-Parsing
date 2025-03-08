@@ -1,5 +1,6 @@
 from flask import Flask, request, render_template
 from PyPDF2 import PdfReader
+import numpy as np
 import re
 import pickle
 
@@ -9,8 +10,9 @@ app = Flask(__name__)
 
 rf_classifier_categorization = pickle.load(open('C:\Projects\Job-Recommendation-System-using-Resume-Parsing\Models/rf_classifier_categorization.pkl', 'rb'))
 tfidf_vectorizer_categorization = pickle.load(open('C:\Projects\Job-Recommendation-System-using-Resume-Parsing\Models/tfidf_vectorizer_categorization.pkl', 'rb'))
-# rf_classifier_job_recommendation = pickle.load(open('models/rf_classifier_job_recommendation.pkl', 'rb'))
-# tfidf_vectorizer_job_recommendation = pickle.load(open('models/tfidf_vectorizer_job_recommendation.pkl', 'rb'))
+xgb_classifier_job_recommendation = pickle.load(open('C:\Projects\Job-Recommendation-System-using-Resume-Parsing\Models/xgb_classifier_job_recommendation.pkl', 'rb'))
+tfidf_vectorizer_job_recommendation = pickle.load(open('C:\Projects\Job-Recommendation-System-using-Resume-Parsing\Models/tfidf_vectorizer_job_recommendation.pkl', 'rb'))
+label_encoder = pickle.load(open('C:\Projects\Job-Recommendation-System-using-Resume-Parsing\Models/label_encoder_job_recommendation.pkl', 'rb'))
 
 # Clean resume==========================================================================================================
 def cleanResume(txt):
@@ -34,8 +36,10 @@ def predict_category(resume_text):
 def job_recommendation(resume_text):
     resume_text= cleanResume(resume_text)
     resume_tfidf = tfidf_vectorizer_job_recommendation.transform([resume_text])
-    recommended_job = rf_classifier_job_recommendation.predict(resume_tfidf)[0]
-    return recommended_job
+    predicted_proba = xgb_classifier_job_recommendation.predict_proba(resume_tfidf)
+    top_3_indices = np.argsort(predicted_proba, axis=1)[:, -3:][0]  # Extract first row
+    top_3_jobs = label_encoder.inverse_transform(top_3_indices)
+    return top_3_jobs  # Return top 3 recommended job roles
 
 def pdf_to_text(file):
     reader = PdfReader(file)
