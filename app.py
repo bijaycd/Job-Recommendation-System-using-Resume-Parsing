@@ -3,16 +3,20 @@ from PyPDF2 import PdfReader
 import numpy as np
 import re
 import pickle
+import os
 
 app = Flask(__name__)
 
 # Load models===========================================================================================================
+# Define relative model paths
+model_dir = os.path.join(os.getcwd(), "Models")
 
-rf_classifier_categorization = pickle.load(open('C:\Projects\Job-Recommendation-System-using-Resume-Parsing\Models/rf_classifier_categorization.pkl', 'rb'))
-tfidf_vectorizer_categorization = pickle.load(open('C:\Projects\Job-Recommendation-System-using-Resume-Parsing\Models/tfidf_vectorizer_categorization.pkl', 'rb'))
-xgb_classifier_job_recommendation = pickle.load(open('C:\Projects\Job-Recommendation-System-using-Resume-Parsing\Models/xgb_classifier_job_recommendation.pkl', 'rb'))
-tfidf_vectorizer_job_recommendation = pickle.load(open('C:\Projects\Job-Recommendation-System-using-Resume-Parsing\Models/tfidf_vectorizer_job_recommendation.pkl', 'rb'))
-label_encoder = pickle.load(open('C:\Projects\Job-Recommendation-System-using-Resume-Parsing\Models/label_encoder_job_recommendation.pkl', 'rb'))
+# Load models and encoders
+rf_classifier_categorization = pickle.load(open(os.path.join(model_dir, "rf_classifier_categorization.pkl"), "rb"))
+tfidf_vectorizer_categorization = pickle.load(open(os.path.join(model_dir, "tfidf_vectorizer_categorization.pkl"), "rb"))
+xgb_classifier_job_recommendation = pickle.load(open(os.path.join(model_dir, "xgb_classifier_job_recommendation.pkl"), "rb"))
+tfidf_vectorizer_job_recommendation = pickle.load(open(os.path.join(model_dir, "tfidf_vectorizer_job_recommendation.pkl"), "rb"))
+label_encoder = pickle.load(open(os.path.join(model_dir, "label_encoder_job_recommendation.pkl"), "rb"))
 
 # Clean resume==========================================================================================================
 def cleanResume(txt):
